@@ -1,0 +1,35 @@
+ObjectGrid:
+Now that the data structure and binning of points is in, add some collision
+detection methods that return objects collided with
+Add binning of bounding box objects such as players and enemies
+Add some enemies that shoot and make sure collision detection is working and is
+fast
+
+this.contentType;
+ObjectGrid.CT_MIXED
+ObjectGrid.CT_POINT
+ObjectGrid.CT_CIRCLE
+ObjectGrid.CT_AABB
+Use this variable to determine what kind of tests need performing?
+If contentType == CT_POINT, then it is known that each contained object
+occupies just a single grid bin, so no duplicate checking is required.
+
+this.candidateList : Objects that will be checked for collisions
+this.collisionList : Objects that are colliding
+
+ObjectGrid.clearDuplicates()
+removes any duplicate references from the candidate list and moves any remaining
+references down so all valid references are at the front.
+
+ObjectGrid.getCollisionCandidates(object)
+calculates the grid bins the object is intersecting and returns a list of
+the objects occupying those bins (candidateList)
+
+ObjectGrid.testCollision(object)
+Checks for collisions with objects in the candidateList and returns a list of
+colliding objects (collisionList)
+
+
+MISC:
++Player needs to be more similar to gameObject
+ -perhaps extend from gameobject and overwrite functions?

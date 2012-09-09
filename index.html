@@ -1,0 +1,39 @@
+<html>
+	<head>
+		<title>Canvas Bullet Hell</title>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<!-- SYSTEM SCRIPTS -->
+		<script type="text/javascript" src="js/system/seedrandom.js"></script>
+		<script type="text/javascript" src="js/system/vector2.js"></script>
+		<script type="text/javascript" src="js/system/sprite.js"></script>
+		<script type="text/javascript" src="js/system/collision2d.js"></script>
+		<script type="text/javascript" src="js/system/assetmanager.js"></script>
+		<script type="text/javascript" src="js/system/soundmanager.js"></script>
+		<script type="text/javascript" src="js/system/renderlist.js"></script>
+		<script type="text/javascript" src="js/system/scratchpool.js"></script>
+		<script type="text/javascript" src="js/system/system.js"></script>
+		<script type="text/javascript" src="js/system/util.js"></script>
+		<script type="text/javascript" src="js/system/font.js"></script>
+		<script type="text/javascript" src="js/system/ui.js"></script>
+		<script type="text/javascript" src="js/system/particlesystem.js"></script>
+		<!-- GAME SCRIPTS -->
+		<script type="text/javascript" src="js/game/gameobject.js"></script>
+		<script type="text/javascript" src="js/game/objectmanager.js"></script>
+		<script type="text/javascript" src="js/game/objectgrid.js"></script>
+		<script type="text/javascript" src="js/game/gamemanager.js"></script>
+		<script type="text/javascript" src="js/game/enemy.js"></script>
+		<script type="text/javascript" src="js/game/shot.js"></script>
+		<script type="text/javascript" src="js/game/player.js"></script>
+		<script type="text/javascript" src="js/game.js"></script>
+	</head>
+
+	<body onload='sys_startup(game_init, game_main, 60)' style='background-color:black; color:white'>
+		<div>
+			<canvas id='screen' style='background-color:#888888'></canvas>
+		</div>
+		<div class='debug'>
+			<p id='keystates'>[keystates]</p>
+			<p id='debug'>[debug]</p>
+		</div>
+	</body>
+</html>

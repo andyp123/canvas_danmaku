@@ -1,0 +1,14 @@
+div.debug {
+	width: 512px;
+	position: absolute;
+	top: 16px;
+	left: 416px;
+	margin: 0;
+	padding: 0;
+	font-family: monospace;
+	font-size: 12px;
+	text-align: left;
+	color: #00FF00;
+	z-index: 5;
+	visibility: visible;
+}
