@@ -26,7 +26,7 @@ Enemy.instance_DRONE = function(obj, x, y, angle) {
 			//test movement
 			//this.offsetXY(sinTime * 30 * g_FRAMETIME_S, 50 * g_FRAMETIME_S);
 			this.offsetXY(0, 50 * g_FRAMETIME_S);
-			if (this.pos.y > g_SCREEN.height) {
+			if (this.pos.y > g_SCREEN.height + this.sprite.frameHeight) {
 				this.deactivate();
 			}
 

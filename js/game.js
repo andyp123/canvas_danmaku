@@ -92,14 +92,14 @@ var TEST_nextEnemyTime = 0;
 function game_main() {
 	document.getElementById('keystates').innerHTML = g_MOUSE.toString() + "<br>" + g_KEYSTATES.toString() + "<br><b>Camera</b><br>" + g_CAMERA.toString();
 	
-	if (g_KEYSTATES.justPressed(68)) { //d for debug
+	if (g_KEYSTATES.justPressed(KEYS.D)) { //d for debug
 		g_DEBUG = !g_DEBUG;
 	}
 	if (g_DEBUG) {
-		if (g_KEYSTATES.isPressed(17) && g_MOUSE.left.isPressed()) { //ctrl + lmb
+		if (g_KEYSTATES.isPressed(KEYS.CONTROL) && g_MOUSE.left.isPressed()) { //ctrl + lmb
 			g_CAMERA.pos.addXY(g_MOUSE.dx, g_MOUSE.dy);
 		}
-		if (g_KEYSTATES.justPressed(67)) { //c for camera reset
+		if (g_KEYSTATES.justPressed(KEYS.C)) { //c for camera reset
 			g_CAMERA.pos.zero();
 		}
 	}

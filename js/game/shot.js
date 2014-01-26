@@ -60,7 +60,7 @@ Shot.instance_BALL = function(obj, x, y, angle) {
 
 				//create new shots!
 				var offsetAngle = Math.random() * 360;
-				var numShots = 6;
+				var numShots = 60;
 				for (var i = 0; i < numShots; ++i) {
 					var shot = g_GAMEMANAGER.enemyShots.getFreeInstance();
 					if (shot) {

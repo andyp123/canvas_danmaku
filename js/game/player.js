@@ -1,41 +1,3 @@
-/* MASS SPRING ****************************************************************
-A mass-spring damper system that can be used to simulate
-harmonic oscillations in a physics system.
-  converted from Action Script code by Eddie Lee
-*/
-function MassSpring() {
-	this.mass = 1.0; //mass of object on spring
-	this.friction = 1.0; //friction of object on spring
-	this.springConstant = 1.0; //controls bounciness of spring
-
-	this.pos = new Vector2(0, 0); //position of object on spring
-	this.vel = new Vector2(0, 0); //velocity of object on spring
-	this.targetPos = new Vector2(0, 0); //spring is tied to this point
-	this.gravity = new Vector2(0, 0); //the gravity affecting the object
-}
-
-MassSpring.prototype.update = function() {
-	g_VECTORSCRATCH.use();
-		//calculate new velocity (uses symplectic method for integration)
-		var nextVel = g_VECTORSCRATCH.get();
-		var invMass = (this.mass != 0.0) ? 1.0 / this.mass : 99999999.0;
-			invMass *= g_FRAMETIME_S;
-		nextVel.x = this.vel.x + invMass * (-this.friction * this.vel.x - this.springConstant * (this.pos.x - this.targetPos.x) + this.gravity.x * this.mass);
-		nextVel.y = this.vel.y + invMass * (-this.friction * this.vel.y - this.springConstant * (this.pos.y - this.targetPos.y) + this.gravity.y * this.mass);
-		
-		//update position and velocity
-		this.pos.x += nextVel.x * g_FRAMETIME_S;
-		this.pos.y += nextVel.y * g_FRAMETIME_S;
-		this.vel.equals(nextVel);
-	g_VECTORSCRATCH.done();
-}
-
-MassSpring.prototype.setSpringParameters = function(mass, friction, springConstant) {
-	this.mass = mass;
-	this.friction = friction;
-	this.springConstant = springConstant;
-}
-
 
 /* SIMPLE PHYSICS **************************************************************
 */
@@ -124,12 +86,12 @@ function Player(id, name, startX, startY, keys) {
 	this.playerID = id || 0;
 	this.playerName = name || "player";
 	this.keys = keys || {
-		LEFT: 37,	//move left
-		RIGHT: 39,	//move right
-		UP: 38,		//move up
-		DOWN: 40,	//move down
-		SHOT1: 90,	//primary shot (z)
-		SHOT2: 88,	//secondary shot (x)
+		LEFT: KEYS.LEFT,	//move left
+		RIGHT: KEYS.RIGHT,	//move right
+		UP: KEYS.UP,		//move up
+		DOWN: KEYS.DOWN,	//move down
+		SHOT1: KEYS.Z,		//primary shot (z)
+		SHOT2: KEYS.X,		//secondary shot (x)
 	};
 	
 	//game object (for interaction with other game objects)

@@ -3,6 +3,8 @@ Asset Manager for canvas games
 Based on HTML5 Rocks Tutorial: http://www.html5rocks.com/en/tutorials/games/assetmanager/
 
 Note that this currently only manages images, not other types of asset.
+Sound support was originally planned, but since they work in a fundamentally different way,
+I've decided to cancel that and leave this as a simple image manager.
 
 Usage:
 var ASSETMANAGER = new AssetManager(); //create a new asset manager
@@ -24,7 +26,6 @@ If a prefix of "IMAGE_" is set, these become IMAGE_BACON and IMAGE_BANANA respec
 TODO:
 +add support for update callbacks (to enable loading progress bars etc.)
 +support for default assets (e.g. pink checkerboard texture when textures can't be loaded, or blank sounds etc.)
-+support for sound files
 */
 
 //small class to hold assets and related data conveniently
@@ -32,11 +33,7 @@ function Asset() {
 	this.status = 0;
 	this.path = "";
 	this.data = null;
-	this.type = Asset.TYPE_IMG; //unused
 }
-
-Asset.TYPE_IMG = "IMG";
-Asset.TYPE_SFX = "SFX";
 
 Asset.EMPTY = 0; //empty object
 Asset.QUEUED = 1; //path set
@@ -45,7 +42,7 @@ Asset.ERROR = 3; //onerror
 
 Asset.prototype.toString = function() {
 	var rv = new String(this.path);
-	rv += " | ";// + this.type + " | ";
+	rv += " | ";
 	switch (this.status) {
 		case Asset.LOADED:
 			rv += "LOADED";
@@ -126,21 +123,20 @@ AssetManager.prototype.loadAssets = function(callback) {
 }
 
 //add an asset to the cache
-AssetManager.prototype.queueAsset = function(name, path, type) {
+AssetManager.prototype.queueAsset = function(name, path) {
 	if (this.assets[name] !== undefined) {
 		alert(("ERROR: Cannot queue asset. Id [" + name + "] is already in use"));
 	} else {
 		var asset = new Asset();
 		asset.path = path;
 		asset.status = Asset.QUEUED;
-		asset.type = type || Asset.TYPE_IMG;
 		this.assets[name] = asset;
 		this.numAssets += 1;
 	}
 }
 
 //add an array of assets to the cache, generating asset names from the path automatically (with optional prefix)
-AssetManager.prototype.queueAssets = function(paths, prefix, type) {
+AssetManager.prototype.queueAssets = function(paths, prefix) {
 	var name, path;
 	var start, end;
 	if (prefix === undefined) prefix = "";
@@ -154,7 +150,7 @@ AssetManager.prototype.queueAssets = function(paths, prefix, type) {
 		}
 		name = (prefix + path.substr(start, end - start)).toUpperCase();
 		//now queue the asset
-		this.queueAsset(name, path, type);
+		this.queueAsset(name, path);
 	}
 }
 
