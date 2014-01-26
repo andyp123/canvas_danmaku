@@ -148,12 +148,12 @@ function Player(id, name, startX, startY, keys) {
 
 	//collision
 	this.bounds = this.gameObject.bounds;
-	this.bounds.setAABB(this.pos.x, this.pos.y - 8, 10, 10);
+	this.bounds.setAABB(this.pos.x, this.pos.y - 4, 8, 8);
 	
 	//options
 	this.options = [];
-	this.options[0] = new PlayerOption(this, -28, 0);
-	this.options[1] = new PlayerOption(this, 28, 0);
+	this.options[0] = new PlayerOption(this, -16, 8);
+	this.options[1] = new PlayerOption(this, 16, 8);
 
 	//misc
 	this.nextShotTime = 0;
@@ -217,8 +217,24 @@ Player.prototype.update = function() {
 
 Player.prototype.fire = function() {
 
-/*	//DODONPACHI style
-	var x = Math.sin(0.25 * g_KEYSTATES.duration(this.keys.SHOT1)) * 32;
+	//simple
+/*	var x = Math.sin(0.5 * g_KEYSTATES.duration(this.keys.SHOT1)) * 5;
+	var spreadAngle = 0;
+	var shot = g_GAMEMANAGER.playerShots.getFreeInstance();
+	if (shot) {
+		Shot.instance_VULCAN(shot, this.pos.x, this.pos.y, 270 * Util.DEG_TO_RAD);
+	}
+
+	for(var i = 0; i < this.options.length; ++i) {
+		var shot = g_GAMEMANAGER.playerShots.getFreeInstance();
+		if (shot) {
+			var option = this.options[i];
+			Shot.instance_VULCAN(shot, option.pos.x, option.pos.y, (270 - (spreadAngle * 0.5) + (spreadAngle / (this.options.length - 1) * i)) * Util.DEG_TO_RAD);
+		}
+	}*/
+
+	//DODONPACHI style
+	/*var x = Math.sin(0.25 * g_KEYSTATES.duration(this.keys.SHOT1)) * 16;
 	var shot = g_GAMEMANAGER.playerShots.getFreeInstance();
 	if (shot) {
 		Shot.instance_VULCAN(shot, this.pos.x - x, this.pos.y - 16, 270 * Util.DEG_TO_RAD);

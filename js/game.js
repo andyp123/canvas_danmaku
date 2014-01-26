@@ -11,7 +11,9 @@ function game_queueData() {
 			"gfx/player.png",
 			"gfx/player_option.png",
 			"gfx/player_shot.png",
-			"gfx/shottest.png",
+			"gfx/enemy_01.png",
+			"gfx/enemy_shot.png",
+			"gfx/background.png",
 		];
 		g_ASSETMANAGER.queueAssets(data);
 		data = [
@@ -115,11 +117,6 @@ function game_main() {
 
 	game_update();
 	game_draw(g_SCREEN.context, 0, 0);
-}
-
-
-function game_init_ui() {
-
 }
 
 function game_init() {

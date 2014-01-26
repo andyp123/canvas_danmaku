@@ -3,9 +3,7 @@ Simple sprite class that can display a single frame image or an indicated
 frame from a multi-frame image (assumed frame order TL->BR)
 
 TODO:
-+add rotation to spite draw method
-+allow aligning to edge, corner or arbitrary position
-+reverse frame order so it's BL->TR
++add rotation to sprite draw method
 */
 
 
@@ -70,7 +68,7 @@ function validateAnimArray(arr) {
 /* SPRITE **********************************************************************
 very simple sprite class that supports animation
 */
-function Sprite(img, framesX, framesY, numFrames) {
+function Sprite(img, framesX, framesY, numFrames, alignment) {
 	this.img = img;
 	this.framesX = framesX || 1;
 	this.framesY = framesY || 1;
@@ -79,7 +77,8 @@ function Sprite(img, framesX, framesY, numFrames) {
 	this.frameHeight = Math.floor(this.img.height / this.framesY);
 	this.offsetX = 0;
 	this.offsetY = 0;
-	this.setOffset(Sprite.ALIGN_CENTER); //default to center alignment
+	if (alignment === undefined) alignment = Sprite.ALIGN_CENTER;
+	this.setOffset(alignment); //default to center alignment
 }
 
 //alignment constants
@@ -145,6 +144,7 @@ Sprite.prototype.setOffset = function(preset, xofs, yofs) {
 
 Sprite.prototype.draw = function(ctx, x, y, frame)
 {
+	frame = frame || 0;
 	x = Math.floor(x + this.offsetX);
 	y = Math.floor(y + this.offsetY);
 	
@@ -174,7 +174,8 @@ Sprite.prototype.drawDebug = function(ctx, x, y) {
 }
 
 Sprite.prototype.toString = function() {
-	return this.img.src;
+	var src = this.img.src;
+	return "SPRITE: " + src;
 }
 
 /* SPRITE ANIMATION STATE ******************************************************

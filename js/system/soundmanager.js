@@ -7,8 +7,7 @@ so the program waits forever at startup for audio elements to load that will
 never load. Anyway, since it's best to have a simple interface to play sounds
 a dedicated sound manager seems like a sensible plan.
 
-playsound(id, [channel]) //play the specified sound
-playmusic(id) //play any sound on the looping music channel
+Music was hacked in in 10 minutes late at night. Might be worth checking the code...
 */
 
 
@@ -19,15 +18,35 @@ function AudioChannel() {
 
 //play a sound on this channel (optionally play the sound that's already set)
 AudioChannel.prototype.play = function (audio) {
-	this.audio.pause();
+	this.stop();
 	this.audio = audio.cloneNode(false); //this gets around a chrome problem, but since it's only a shallow copy the data needing GC should be minimal
 	this.audio.play();
+}
+
+//to be used as an event listener function for looping
+AudioChannel.loopFunc = function() {
+	this.curentTime = 0;
+	this.play();
+}
+
+AudioChannel.prototype.loop = function (audio) {
+	this.stop();
+	this.audio = audio.cloneNode(false);
+	this.audio.addEventListener('ended', AudioChannel.loopFunc, false);
+	this.audio.play();
+}
+
+AudioChannel.prototype.stop = function () {
+	this.audio.pause();
+	this.audio.removeEventListener('ended', AudioChannel.loopFunc, false);
+	this.currentTime = 0;
 }
 
 //SOUND MANAGER
 function SoundManager() {
 	this.channels = []; //array of audio elements that represent the channels of an audio system
-
+	this.music = new AudioChannel(); //special element just for playing looping music
+ 
 	this.sounds = {}; //hash of audio elements to store audio that has been loaded
 	var i = SoundManager.MAX_CHANNELS;
 	while (i--) {
@@ -36,22 +55,36 @@ function SoundManager() {
 }
 
 SoundManager.LOW_PRIORITY_CHANNEL = 0; //sounds playing in this channel might be stopped by other sounds playing over the top
-SoundManager.MAX_CHANNELS = 8;
+SoundManager.MAX_CHANNELS = 16;
 //SoundManager.AUDIO_FORMAT = "audio/ogg";
+
+SoundManager.prototype.playMusic = function (name) {
+	var sound = this.sounds[name];
+	if (sound !== undefined) {
+		this.music.loop(sound);
+	} else {
+		alert("ERROR: Audio with id [" + name + "] does not exist!");
+	}
+}
+
+SoundManager.prototype.stopMusic = function (name) {
+	this.music.stop();
+}
 
 //get a channel that a sound is not currently playing on
 SoundManager.prototype.getFreeChannel = function () {
 	var i = this.channels.length;
-	var channel;
+	var channel = -1;
 	while (i--) {
 		audio = this.channels[i].audio;
 		if (!audio || (audio && (audio.ended || audio.paused))) {
-			return i;
+			channel = i;
+			break;
 		}
 	}
 	//if there was no free channel, return the low priority channel so a sound can be played instantly
-	return SoundManager.LOW_PRIORITY_CHANNEL;
-
+	if (channel < 0) channel = SoundManager.LOW_PRIORITY_CHANNEL;
+	return channel;
 }
 
 SoundManager.prototype.playSound = function (name, channel) {
@@ -60,8 +93,8 @@ SoundManager.prototype.playSound = function (name, channel) {
 		if (channel === undefined) {
 			channel = this.getFreeChannel(); //get a free channel
 		}
-		//alert("src: " + sound.src + ", channel:" + channel);
 		this.channels[channel].play(sound); //play the sound via the free channel
+		//console.log(name + " : " + channel);
 	} else {
 		alert("ERROR: Audio with id [" + name + "] does not exist!");
 	}

@@ -18,7 +18,7 @@ Shot.instance_VULCAN = function(obj, x, y, angle) {
 		o.TYPENAME = "Shot.VULCAN";
 		o.sprite = new Sprite(g_ASSETMANAGER.getAsset("PLAYER_SHOT"), 1, 1);
 		o.speed = 300;
-		o.damage = 1;
+		o.damage = 2;
 		o.collisionFlags = GameObject.CF_ENEMY;
 		o.CULLING = GameObject.CULL_AUTO;
 
@@ -44,8 +44,8 @@ Shot.instance_BALL = function(obj, x, y, angle) {
 	if (Shot.BALL === undefined) {
 		var o = new GameObject();
 		o.TYPENAME = "Shot.BALL";
-		o.sprite = null;
-		o.speed = 200;
+		o.sprite = new Sprite(g_ASSETMANAGER.getAsset("ENEMY_SHOT"), 1, 1);
+		o.speed = 100;
 		o.damage = 1;
 		o.collisionFlags = GameObject.CF_PLAYER;
 		o.CULLING = GameObject.CULL_AUTO;
@@ -54,15 +54,25 @@ Shot.instance_BALL = function(obj, x, y, angle) {
 			this.pos.x += this.vel.x * g_FRAMETIME_S;
 			this.pos.y += this.vel.y * g_FRAMETIME_S;
 
-			if (this.owner && this.owner.ACTIVE == false) {
+			//auto timeout (in addition to regular culling)
+			if (g_GAMETIME_MS > this.timeout) {
 				this.deactivate();
+
+				//create new shots!
+				var offsetAngle = Math.random() * 360;
+				var numShots = 6;
+				for (var i = 0; i < numShots; ++i) {
+					var shot = g_GAMEMANAGER.enemyShots.getFreeInstance();
+					if (shot) {
+						Shot.instance_BALL(shot, this.pos.x, this.pos.y, this.angle + (offsetAngle + 360 / numShots * i) * Util.DEG_TO_RAD);
+						shot.owner = this.owner;
+						shot.speed = this.speed * 2.0;
+						shot.timeout = g_GAMETIME_MS + 10000;
+					}
+				}
 			}
 		}
 
-		o.drawFunc = function(ctx, xofs, yofs) {
-			Util.drawPoint(ctx, this.pos.x + xofs, this.pos.y + yofs);
-		}
-		
 		o.collisionFunc = function(that) {
 			//that.takeDamage(this.damage);
 			this.deactivate();
@@ -74,6 +84,7 @@ Shot.instance_BALL = function(obj, x, y, angle) {
 	obj.offsetXY(x, y);
 	Shot.setAngle(obj, angle, false);
 	obj.activate();
+	obj.timeout = g_GAMETIME_MS + 1500;
 }
 
 Shot.instance_HOMING = function(obj, x, y, angle) {

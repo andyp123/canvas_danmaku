@@ -164,14 +164,22 @@ Collision2d.test_AABB_Sprite = function(aabb, sprite, spx, spy) {
 	return Collision2d.test_AABB_AABB(aabb.pos.x, aabb.pos.y, aabb.hw, aabb.hh, spx, spy, sprite.frameWidth * 0.5, sprite.frameHeight * 0.5);
 }
 
+//returns true only if circle circle2 is completely inside circle1
+Collision2d.test_CIRCLE_INSIDE_CIRCLE = function(x1, y1, r1, x2, y2, r2) {
+	var dx = x2 - x1;
+	var dy = y2 - y1;
+	var dr = r1 - r2;
+	return dx * dx + dy * dy < dr * dr;
+}
+
 /* GENERIC COLLISION OBJECT ****************************************************
 Hopefully this should *simplify* things :)
 */
 function CollisionBounds(type, px, py, hw, hh) {
-	this.type = type; //see CollisionBounds.TYPE... below
+	this.type = type || CollisionBounds.TYPE_NONE; //see CollisionBounds.TYPE... below
 	this.pos = new Vector2(px, py); //all types use this
-	this.hw = hw; //doubles up as radius when type == CollisionBounds.CIRCLE
-	this.hh = hh;
+	this.hw = hw || 0; //doubles up as radius when type == CollisionBounds.CIRCLE
+	this.hh = hh || 0;
 }
 
 CollisionBounds.TYPE_NONE = 0; //so it can be enabled/disabled
@@ -224,7 +232,7 @@ CollisionBounds.prototype.testCollision = function(that) {
 	//easy tests
 	if (this.type == that.type) {
 		switch (this.type) {
-			case CollisionBounds.TYPE_POINT: return this.pos.isEqualsTo(that.pos);
+			case CollisionBounds.TYPE_POINT: return this.pos.isEqualTo(that.pos);
 			case CollisionBounds.TYPE_CIRCLE: return Collision2d.test_CIRCLE_CIRCLE(this.pos.x, this.pos.y, this.hw, that.pos.x, that.pos.y, that.hw);
 			case CollisionBounds.TYPE_AABB: return Collision2d.test_AABB_AABB(this.pos.x, this.pos.y, this.hw, this.hh, that.pos.x, that.pos.y, that.hw, that.hh);
 		}
@@ -245,6 +253,15 @@ CollisionBounds.prototype.testCollision = function(that) {
 			break;
 		default:
 			return false;
+	}
+}
+
+CollisionBounds.prototype.testCollision_XY = function(x, y) {
+	switch (this.type) {
+		case CollisionBounds.TYPE_CIRCLE: return Collision2d.test_CIRCLE_XY(this.pos.x, this.pos.y, this.hw, x, y);
+		case CollisionBounds.TYPE_AABB: return Collision2d.test_AABB_XY(this.pos.x, this.pos.y, this.hw, this.hh, x, y);
+		case CollisionBounds.TYPE_POINT: return this.pos.isEqualToXY(x, y);
+		default: return false;
 	}
 }
 

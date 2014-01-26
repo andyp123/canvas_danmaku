@@ -80,6 +80,7 @@ RenderListNode.sort = function(a, b) {
 function RenderList() {
 	this.objects = new Array(RenderList.MAX_OBJECTS);
 	this.numObjects = 0;
+	this.parallax = true; //set to false to disable parallax
 	
 	for (var i = 0; i < RenderList.MAX_OBJECTS; i++) {
 		this.objects[i] = new RenderListNode();
@@ -113,10 +114,13 @@ RenderList.prototype.draw = function(ctx, cameraX, cameraY) {
 			xofs = 0;
 			yofs = 0;
 		} else {
-			//xofs = (this.objects[i].layer * 0.05 * cameraX) - cameraX;
-			//yofs = (this.objects[i].layer * 0.05 * cameraY) - cameraY;
-			xofs = -cameraX;
-			yofs = -cameraY;
+			if (this.parallax) { //FIXME: parallax calculation is wrong...
+				xofs = (this.objects[i].layer * 0.05 * cameraX) - cameraX;
+				yofs = (this.objects[i].layer * 0.05 * cameraY) - cameraY;
+			} else {
+				xofs = -cameraX;
+				yofs = -cameraY;
+			}
 		}
 		this.objects[i].object.draw(ctx, xofs, yofs);
 	}
@@ -131,11 +135,14 @@ RenderList.prototype.drawDebug = function(ctx, cameraX, cameraY, layer) {
 		if (this.objects[i].screenRelative) {
 			xofs = 0;
 			yofs = 0;
-		} else { //parallax disabled for now
-			//xofs = (this.objects[i].layer * 0.05 * cameraX) - cameraX;
-			//yofs = (this.objects[i].layer * 0.05 * cameraY) - cameraY;
-			xofs = -cameraX;
-			yofs = -cameraY;
+		} else { //FIXME: parallax calculation is wrong...
+			if (this.parallax) {
+				xofs = (this.objects[i].layer * 0.05 * cameraX) - cameraX;
+				yofs = (this.objects[i].layer * 0.05 * cameraY) - cameraY;
+			} else {
+				xofs = -cameraX;
+				yofs = -cameraY;
+			}
 		}
 		this.objects[i].object.drawDebug(ctx, xofs, yofs);
 		i++;

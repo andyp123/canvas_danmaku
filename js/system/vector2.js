@@ -4,6 +4,9 @@ Note that this class deliberately avoids to creation of new objects during
 arithmetic operations etc. in order to prevent unneccessary garbage collection
 occuring. This can be inconvenient, but if a pool of vectors or scratch pad is
 used it is not such a big problem.
+
+Some functions have an XY postfixed clone that take x, y parameters instead of
+another vector as it is more convenient in many cases.
 */
 function Vector2(x, y) {
     this.x = x || 0;
@@ -22,6 +25,10 @@ Vector2.prototype.toString = function() {
 
 Vector2.prototype.isEqualTo = function(v) {
 	return (this.x == v.x && this.y == v.y);
+}
+
+Vector2.prototype.isEqualToXY = function(x, y) {
+	return (this.x == x && this.y == y);
 }
 
 //NON-STATIC, NON-CONST FUNCTIONS **********************************************
@@ -133,6 +140,18 @@ Vector2.prototype.dist = function(v) {
 Vector2.prototype.distSq = function(v) {
 	var dx = v.x - this.x;
 	var dy = v.y - this.y;
+	return dx * dx + dy * dy;
+}
+
+Vector2.prototype.distXY = function(x, y) {
+	var dx = x - this.x;
+	var dy = y - this.y;
+	return Math.sqrt(dx * dx + dy * dy);
+}
+
+Vector2.prototype.distSqXY = function(x, y) {
+	var dx = x - this.x;
+	var dy = y - this.y;
 	return dx * dx + dy * dy;
 }
 

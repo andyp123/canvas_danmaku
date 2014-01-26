@@ -33,6 +33,48 @@ Util.bellCurve = function(x) {
 /* HANDY FUNCTIONS *************************************************************
 */
 
+/* NEAREST NEIGHBOUR IMAGE SCALING *
+based on the following code: http://tech-algorithm.com/articles/nearest-neighbor-image-scaling/
+*/
+Util.nearestNeighbour = function(pix1, pix2, w1, h1, w2, h2) {
+	var xRatio, yRatio, x, y, i1, i2;
+	xRatio = w1 / w2;
+	yRatio = h1 / h2;
+	
+	for (x = 0; x < w2; ++x) {
+		for (y = 0; y < h2; ++y) {
+			i1 = 4 * (Math.floor(y * yRatio) * w1 + Math.floor(x * xRatio));
+			i2 = 4 * (y * w2 + x);
+		
+			pix2[i2]	 = pix1[i1];
+			pix2[i2 + 1] = pix1[i1 + 1];
+			pix2[i2 + 2] = pix1[i1 + 2];
+			//pix2[i2 + 3] = 255;
+			//scanline hack
+			if (y % 2) pix2[i2 + 3] = 200;
+			else pix2[i2 + 3] = 255;
+		}
+	}
+}
+
+Util.copyCanvasScaled = function(canvas1, canvas2) {
+	var ctx1, ctx2, src, dst;
+	ctx1 = canvas1.getContext('2d');
+	ctx2 = canvas2.getContext('2d');
+
+	src = ctx1.getImageData(0, 0, canvas1.width, canvas1.height);
+	dst = ctx2.createImageData(canvas2.width, canvas2.height);
+
+	//only bother to scale if the canvas sizes are not the same
+	if (canvas1.width != canvas2.width || canvas1.height != canvas2.height) {
+		Util.nearestNeighbour(src.data, dst.data, canvas1.width, canvas1.height, canvas2.width, canvas2.height);
+		ctx2.putImageData(dst, 0, 0);
+	} else {
+		ctx2.putImageData(src, 0, 0);
+	}
+}
+
+
 //breaks a string up and tries to get a valid function pointer. If no function is found, returns null
 //"Dog.bark" > window["Dog"]["bark"] > pointer to Dog.bark
 //http://stackoverflow.com/questions/359788/how-to-execute-a-javascript-function-when-i-have-its-name-as-a-string (from Jason Bunting's answer)
@@ -66,6 +108,18 @@ Util.getFrameFromAngle = function(angle, numFrames, startFrameIndex, startFrameA
 	return (frame < numFrames) ? startFrameIndex + frame : startFrameIndex;
 }
 
+//check if a specific object is an array
+Util.objectInArray = function(obj, arr) {
+	for (var i = 0; i < arr.length; ++i) {
+		if (arr[i] === obj) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
 /* DEBUG DRAWING FUNCTIONS *****************************************************
 */
 
@@ -92,6 +146,12 @@ Util.drawLine = function(ctx, x1, y1, x2, y2) {
 	ctx.stroke(); 
 }
 
+Util.drawCircle = function(ctx, x, y, r) {
+	ctx.beginPath();
+	ctx.arc(x, y, r, 0, 2 * Math.PI, false);
+	ctx.stroke();
+}
+
 Util.drawAngleVector = function(ctx, vec, size, x, y) {
 	ctx.beginPath();
 	ctx.moveTo(x + size, y);
@@ -104,9 +164,39 @@ Util.drawAngleVector = function(ctx, vec, size, x, y) {
 	ctx.stroke();
 }
 
+//lightweight bitmap number function (right-aligned)
+Util.drawNumber = function(ctx, x, y, num, img, framesX) {
+	x = Math.floor(x);
+	y = Math.floor(y);
+	var str = "" + num; //num to string
+	var chWidth = img.width / framesX;
+	var chHeight = img.height;
+	var i, ch;
+	for (i = str.length - 1; i >= 0; --i) {
+		ch = str.charCodeAt(i) - 48; //charCode('0') == 48;
+		if (ch >= framesX || ch < 0) continue;
+		ctx.drawImage(img, ch * chWidth, 0, chWidth, chHeight, x - (str.length * chWidth) + i * chWidth, y, chWidth, chHeight);
+	}
+}
+
 /* DEBUGGING CONVENIENCE FUNCTIONS *********************************************
 */
 Util.objToString = function(o) {
+	var pv;
+	var rv = "";
+	for (p in o) {
+		rv += "" + p + ": ";
+		pv = new String(o[p]);
+		if (pv.search("function") == 0) {
+			rv += "[FUNCTION], ";
+		} else {
+			rv += pv + ", ";
+		}	
+	}
+	return rv;
+}
+
+Util.objToString_HTML = function(o) {
 	var pv;
 	var rv = "";
 	for (p in o) {

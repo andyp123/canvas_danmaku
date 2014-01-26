@@ -16,10 +16,10 @@ TODO:
 +look into RequestAnimationFrame support for screen
 */
 
-//objects in global namespacemo
+//objects in global namespace
 var g_KEYSTATES = new KeyStates();
 var g_MOUSE = new Mouse();
-var g_SCREEN = new Screen();
+var g_SCREEN = new Screen(true);
 var g_RENDERLIST = new RenderList();
 var g_ASSETMANAGER = new AssetManager();
 var g_SOUNDMANAGER = new SoundManager();
@@ -28,7 +28,7 @@ var g_SOUNDMANAGER = new SoundManager();
 var g_FRAMERATE = 60;
 var g_FRAMETIME_MS = Math.ceil(1000.0 / g_FRAMERATE);
 var g_FRAMETIME_S = 1.0 / g_FRAMERATE;
-var g_GAMETIME_MS = Math.ceil(1000 / g_FRAMERATE);
+var g_GAMETIME_MS = Math.ceil(1000.0 / g_FRAMERATE);
 var g_GAMETIME_FRAMES = 0;
 
 var g_INIT_SUB = null; //user init func
@@ -90,15 +90,16 @@ function sys_main() {
 /* SCREEN **********************************************************************
 A simple container for basic screen related functions
 */
-function Screen() {
+function Screen(useTouch) {
 	this.canvas = null;
 	this.context = null;
 	this.width = 0;
 	this.height = 0;
-	this.posX = 0;
+	this.posX = 0; //used, but this is a hack!
 	this.posY = 0;
-	this.clearColor = "128, 128, 128"; //unused
+	this.clearColor = "rgb(64,64,64)";
 	this.clearAlpha = 1.0; //unused
+	this.useTouch = useTouch || false;
 }
 
 Screen.prototype.init = function(id, width, height) {
@@ -108,15 +109,77 @@ Screen.prototype.init = function(id, width, height) {
 		this.setSize(width, height);
 		this.posX = this.canvas.offsetLeft;
 		this.posY = this.canvas.offsetTop;
+		
+		if (this.useTouch) this.addTouchEventListeners();
+
 		return true;
 	}
 	alert("canvas with id \'" + id + "\' could not be found");
 	return false;
 }
 
+//hacked in single touch support to emulate mouse
+Screen.prototype.addTouchEventListeners = function() {
+	var mouse = g_MOUSE;
+	mouse.touchID = -1;
+
+	this.canvas.addEventListener('touchstart', function(event) {
+		event.preventDefault();
+
+		var mouse = g_MOUSE;
+		var touches = event.targetTouches;
+		if (touches.length > 0 && mouse.touchID == -1) {
+			mouse.x = touches[0].pageX - g_SCREEN.posX;
+			mouse.y = touches[0].pageY - g_SCREEN.posY;
+			mouse.left.press();
+			mouse.touchID = touches[0].identifier;
+		}
+	}, false);
+
+	this.canvas.addEventListener('touchend', function(event) {
+		event.preventDefault();
+
+		var mouse = g_MOUSE;
+		var touches = event.changedTouches;
+		for (var i = 0; i < touches.length; ++i) {
+			if (touches[i].identifier == mouse.touchID) {
+				mouse.left.release();
+				mouse.touchID = -1;
+				return;
+			}
+		}
+	}, false);
+
+	this.canvas.addEventListener('touchmove', function(event) {
+		event.preventDefault();
+
+		var mouse = g_MOUSE;
+		var touches = event.changedTouches;
+		for (var i = 0; i < touches.length; ++i) {
+			if (touches[i].identifier == mouse.touchID) {
+				mouse.x = touches[i].pageX - g_SCREEN.posX;
+				mouse.y = touches[i].pageY - g_SCREEN.posY;
+				return;
+			}
+		}
+	}, false);
+
+	// disable accidental right click menu activation (hopefully)
+	this.canvas.addEventListener('onContextMenu', function(event) {
+		event.preventDefault();
+	}, false);
+
+	this.canvas.addEventListener('onblur', function(event) {
+		var mouse = g_MOUSE;
+		mouse.touchID = -1;
+	});	
+}
+
 Screen.prototype.clear = function() {
 	if (this.context != null) {
-		this.context.clearRect(0, 0, this.width, this.height);
+		//this.context.clearRect(0, 0, this.width, this.height);
+		this.context.fillStyle = this.clearColor;
+		this.context.fillRect(0, 0, this.width, this.height);
 	}
 }
 
@@ -201,6 +264,8 @@ KeyStates.prototype.releaseAll = function() {
 		this.states[i].release();
 		this.states[i].lastHoldDuration = 0;
 	}
+	this.anyKeyJustPressed = false;
+	this.anyKeyJustReleased = false;
 }
 
 KeyStates.prototype.getState = function(keyCode) {
@@ -273,6 +338,8 @@ Mouse.prototype.toString = function() {
 	else rv += "[IN]";
 	if (this.left.state) rv += ", LMB = " + this.left.duration();
 	if (this.right.state) rv += ", RMB = " + this.right.duration();
+	if (this.touchID !== undefined) rv += ", touchID = " + this.touchID;
+	else rv += ", [TOUCH DISABLED]";
 	return rv;
 }
 
@@ -326,6 +393,7 @@ document.onmousemove = function(e) {
 	}
 }
 
+//clear event states when the window loses focus
 window.onblur = function() {
 	g_KEYSTATES.releaseAll();
 	g_MOUSE.releaseAll();
@@ -339,4 +407,112 @@ window.onfocus = function() {
 //prevent text being selected and breaking shit (only supported in some browsers)
 document.onselectstart = function() {
     return false;
+};
+
+
+/* KEY NAME > CODE MAPPING *
+http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
+This *may* not be correct for all browsers / OS configurations!
+*/
+
+var KEYS = {
+	BACKSPACE : 8,
+	TAB : 9,
+	ENTER : 13,
+	SHIFT : 16,
+	CTRL : 17,
+	ALT : 18,
+	PAUSE : 19,
+	CAPSLOCK : 20,
+	ESCAPE : 27,
+	SPACE : 32,
+	PAGEUP : 33,
+	PAGEDOWN : 34,
+	END : 35,
+	HOME : 36,
+	LEFT : 37,
+	UP : 38,
+	RIGHT : 39,
+	DOWN : 40,
+	INSERT : 45,
+	DELETE : 46,
+	_0 : 48,
+	_1 : 49,
+	_2 : 50,
+	_3 : 51,
+	_4 : 52,
+	_5 : 53,
+	_6 : 54,
+	_7 : 55,
+	_8 : 56,
+	_9 : 57,
+	A : 65,
+	B : 66,
+	C : 67,
+	D : 68,
+	E : 69,
+	F : 70,
+	G : 71,
+	H : 72,
+	I : 73,
+	J : 74,
+	K : 75,
+	L : 76,
+	M : 77,
+	N : 78,
+	O : 79,
+	P : 80,
+	Q : 81,
+	R : 82,
+	S : 83,
+	T : 84,
+	U : 85,
+	V : 86,
+	W : 87,
+	X : 88,
+	Y : 89,
+	Z : 90,
+	LEFTOS : 91,
+	RIGHTOS : 92,
+	SELECT : 93,
+	NP_0 : 96,
+	NP_1 : 97,
+	NP_2 : 98,
+	NP_3 : 99,
+	NP_4 : 100,
+	NP_5 : 101,
+	NP_6 : 102,
+	NP_7 : 103,
+	NP_8 : 104,
+	NP_9 : 105,
+	MULTIPLY : 106,
+	ADD : 107,
+	SUBTRACT : 109,
+	DECIMALPOINT : 110,
+	DIVIDE : 111,
+	F1 : 112,
+	F2 : 113,
+	F3 : 114,
+	F4 : 115,
+	F5 : 116,
+	F6 : 117,
+	F7 : 118,
+	F8 : 119,
+	F9 : 120,
+	F10 : 121,
+	F11 : 122,
+	F12 : 123,
+	NUMLOCK : 144,
+	SCROLLLOCK : 145,
+	SEMICOLON : 186,
+	EQUALS : 187,
+	COMMA : 188,
+	DASH : 189,
+	PERIOD : 190,
+	FORWARDSLASH : 191,
+	GRAVEACCENT : 192,
+	OPENBRACKET : 219,
+	BACKSLASH : 220,
+	CLOSEBRACKET : 221,
+	SINGLEQUOTE : 222
 };

@@ -1,3 +1,23 @@
+function Background() {
+	this.sprite = new Sprite(g_ASSETMANAGER.getAsset("BACKGROUND"), 1, 1);
+	this.sprite.setOffset(Sprite.ALIGN_TOP_LEFT);
+}
+
+Background.prototype.draw = function( ctx, xofs, yofs ) {
+	this.sprite.draw(ctx, xofs, yofs, 0);
+}
+
+Background.prototype.update = function() {
+}
+
+Background.prototype.addDrawCall = function() {
+	g_RENDERLIST.addObject(this, -10, -10, false);
+}
+
+
+
+
+
 /* GAME MANAGER ****************************************************************
 The object that contains lists of all the enemies, buildings, bullets etc. in
 the scene. All objects must have a boolean flag named ACTIVE in order to denote
@@ -26,13 +46,13 @@ function GameManager() {
 
 	this.enemies.initialize(function() { return new GameObject(); }, 32);
 	this.playerShots.initialize(function() { return new GameObject(); }, 1024);
-	this.enemyShots.initialize(function() { return new GameObject(); }, 512);
+	this.enemyShots.initialize(function() { return new GameObject(); }, 2048);
 
 	//use a custom draw function for these managers
 	this.playerShots.drawFunc = ObjectManager.drawActiveObjects;
 	this.playerShots.drawDebugFunc = ObjectGrid.drawGrid;
 	this.enemyShots.drawFunc = ObjectManager.drawActiveObjects;
-	//this.enemyShots.drawDebugFunc = ObjectManager.drawInactiveObjectsPos;
+	this.enemyShots.drawDebugFunc = ObjectGrid.drawGrid;
 
 	//This list is used for storing collisions between objects
 	//When an object checks for collisions, all the colliding objects are added
@@ -43,6 +63,8 @@ function GameManager() {
 	while (i--) {
 		this.collisionList[i] = new CollisionData();
 	}
+
+	this.background = new Background();
 }
 
 GameManager.MAX_COLLISIONS = 16; //may need more for large explosions etc.
@@ -70,5 +92,7 @@ GameManager.prototype.addDrawCall = function() {
 	this.playerShots.addDrawCall();
 	this.enemyShots.addDrawCall();
 	this.enemies.addDrawCall();
+
+	this.background.addDrawCall();
 }
 

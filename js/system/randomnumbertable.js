@@ -30,7 +30,7 @@ function RandomNumberTable(tableSize) {
 }
 
 RandomNumberTable.MIN_SIZE = 1;
-RandomNumberTable.MAX_SIZE = 128;	
+RandomNumberTable.MAX_SIZE = 4096;	
 	
 //generate new random numbers for the entire table
 RandomNumberTable.prototype.generateNumbers = function() {
@@ -41,6 +41,13 @@ RandomNumberTable.prototype.generateNumbers = function() {
 
 //gets a random number and increments the index
 RandomNumberTable.prototype.get = function() {
+	if (this.index > this.table.length - 1) this.index = 0;
+	return this.table[this.index++];
+}
+
+//same as get, but named random so it can be used with libraries such as Perlin.js,
+//which take an object that has a random() function to generate random numbers
+RandomNumberTable.prototype.random = function() {
 	if (this.index > this.table.length - 1) this.index = 0;
 	return this.table[this.index++];
 }

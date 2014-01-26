@@ -208,7 +208,7 @@ GameObject.prototype.collide = function(that) {
 }
 
 //generic update function that calls the update of the object
-GameObject.prototype.update = function(ctx, xofs, yofs) {
+GameObject.prototype.update = function() {
 	if (this.updateFunc) {
 		this.updateFunc.call(this);
 	}

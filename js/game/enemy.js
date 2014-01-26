@@ -7,22 +7,24 @@ Enemy.instance_DRONE = function(obj, x, y, angle) {
 	if (Enemy.DRONE === undefined) {
 		var o = new GameObject();
 		o.TYPENAME = "Enemy.DRONE";
-		o.sprite = null;
+		o.sprite = new Sprite(g_ASSETMANAGER.getAsset("ENEMY_01"), 1, 1);
 		o.health = 20;
 		o.angle = 90 * Util.DEG_TO_RAD; //facing down screen at player
-		o.bounds.setAABB(0, 0, 48, 32);
+		o.bounds.setAABB(0, 0, 32, 24);
 		o.collisionFlags = GameObject.CF_PLAYER_SHOTS;
-		o.nextActionDelay = 250;
+		o.nextActionDelay = 10000;
 		o.CULLING = GameObject.CULL_AUTO;
 
 		o.updateFunc = function() {
+			//create sin variable based on time
+			var sinTime = Math.sin((g_GAMETIME_FRAMES - this.activateTime) * 0.005);
+
 			//check for collisions with player shots
 			g_GAMEMANAGER.playerShots.testCollisions(this.bounds);
 			g_GAMEMANAGER.playerShots.performCollisionResponse(this);
 
 			//test movement
-//			this.moveToXY(g_SCREEN.width * 0.5 + Math.sin(g_GAMETIME_FRAMES * 0.0125) * 64, 64 + Math.cos(g_GAMETIME_FRAMES * 0.0125) * 32);
-
+			//this.offsetXY(sinTime * 30 * g_FRAMETIME_S, 50 * g_FRAMETIME_S);
 			this.offsetXY(0, 50 * g_FRAMETIME_S);
 			if (this.pos.y > g_SCREEN.height) {
 				this.deactivate();
@@ -37,10 +39,6 @@ Enemy.instance_DRONE = function(obj, x, y, angle) {
 				}
 				this.nextActionTime = g_GAMETIME_MS + this.nextActionDelay;
 			}
-		}
-
-		o.drawFunc = function(ctx, xofs, yofs) {
-			this.bounds.draw(ctx, xofs, yofs);
 		}
 
 		o.collisionFunc = function(that) {
