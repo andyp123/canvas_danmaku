@@ -77,6 +77,8 @@ var TEST_nextEnemyTime = 0;
 function game_main() {
 	if (g_DEBUG) {
 		document.getElementById('keystates').innerHTML = g_MOUSE.toString() + "<br>" + g_KEYSTATES.toString() + "<br><b>Camera</b><br>" + g_CAMERA.toString();
+	} else {
+		document.getElementById('keystates').innerHTML = "";
 	}
 
 	if (g_KEYSTATES.isPressed(KEYS.SHIFT)) {
