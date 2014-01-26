@@ -60,7 +60,7 @@ Shot.instance_BALL = function(obj, x, y, angle) {
 
 				//create new shots!
 				var offsetAngle = Math.random() * 360;
-				var numShots = 60;
+				var numShots = 40;
 				for (var i = 0; i < numShots; ++i) {
 					var shot = g_GAMEMANAGER.enemyShots.getFreeInstance();
 					if (shot) {
@@ -70,6 +70,7 @@ Shot.instance_BALL = function(obj, x, y, angle) {
 						shot.timeout = g_GAMETIME_MS + 10000;
 					}
 				}
+				g_SOUNDMANAGER.playSound("ENEMY_SHOT_BURST");
 			}
 		}
 

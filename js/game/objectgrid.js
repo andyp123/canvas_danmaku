@@ -362,16 +362,20 @@ ObjectGrid.drawGrid = function(ctx, xofs, yofs) {
 
 	//draw outline
 	Util.drawRectangle(ctx, this.gridPos.x + xofs, this.gridPos.y + yofs, this.gridWidth, this.gridHeight);
-	//draw grid lines
 	//horizontal lines
+	var c1, c2;
+	c1 = Math.floor(xofs) + this.gridPos.x - 0.5;
+	c2 = Math.floor(xofs + this.gridWidth) + this.gridPos.x - 0.5;
 	for (y = 0; y < this.gridSizeY; ++y) {
 		yPos = Math.floor(yofs + this.gridPos.y + y * this.binSizeY) - 0.5;
-		Util.drawLine(ctx, Math.floor(xofs) - 0.5, yPos, Math.floor(xofs + this.gridWidth) - 0.5, yPos);
+		Util.drawLine(ctx, c1, yPos, c2, yPos);
 	}
 	//vertical lines
+	c1 = Math.floor(yofs) + this.gridPos.y - 0.5;
+	c2 = Math.floor(yofs + this.gridHeight) + this.gridPos.y - 0.5;
 	for (x = 0; x < this.gridSizeX; ++x) {
 		xPos = Math.floor(xofs + this.gridPos.x + x * this.binSizeX) - 0.5;
-		Util.drawLine(ctx, xPos, Math.floor(yofs) - 0.5, xPos, Math.floor(yofs + this.gridHeight) - 0.5);
+		Util.drawLine(ctx, xPos, c1, xPos, c2);
 	}
 }
 

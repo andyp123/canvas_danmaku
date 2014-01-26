@@ -1,6 +1,5 @@
-/* ENEMY TYPES *****************************************************************
+/* ENEMY TYPES ****************************************************************
 */
-
 var Enemy = {};
 
 Enemy.instance_DRONE = function(obj, x, y, angle) {
@@ -36,6 +35,7 @@ Enemy.instance_DRONE = function(obj, x, y, angle) {
 				if (shot) {
 					Shot.instance_BALL(shot, this.pos.x, this.pos.y, this.angle);
 					shot.owner = this;
+					//g_SOUNDMANAGER.playSound("ENEMY_SHOT");
 				}
 				this.nextActionTime = g_GAMETIME_MS + this.nextActionDelay;
 			}
@@ -43,6 +43,11 @@ Enemy.instance_DRONE = function(obj, x, y, angle) {
 
 		o.collisionFunc = function(that) {
 			if (this.health <= 0) {
+				var effect = g_GAMEMANAGER.effects.getFreeInstance();
+				if (effect) {
+					Effect.instance_EXPLOSION(effect, this.pos.x, this.pos.y, this.angle);
+					g_SOUNDMANAGER.playSound("ENEMY_EXPLOSION");
+				}
 				this.deactivate();
 				//console.log(g_GAMETIME_FRAMES + ": " + this.TYPENAME + " was killed by " + that.TYPENAME);
 			}

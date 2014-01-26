@@ -40,13 +40,25 @@ CollisionData.sort = function(a, b) {
 
 function GameManager() {
 //	this.players = new ObjectManager();
+	this.effects = new ObjectManager();
 	this.enemies = new ObjectManager();
 	this.playerShots = new ObjectGrid();
 	this.enemyShots = new ObjectGrid();
 
+	var GRID_SETTINGS = {
+		MAX_REFS_PER_BIN: ObjectGrid.DEFAULT_MAX_REFS_PER_BIN,
+		px: 0,
+		py: -ObjectGrid.DEFAULT_BIN_SIZE,
+		width: g_SCREEN.width,
+		height: g_SCREEN.height + ObjectGrid.DEFAULT_BIN_SIZE,
+		sizeX: Math.floor(g_SCREEN.width / ObjectGrid.DEFAULT_BIN_SIZE),
+		sizeY: Math.floor((g_SCREEN.height + ObjectGrid.DEFAULT_BIN_SIZE) / ObjectGrid.DEFAULT_BIN_SIZE)
+	};
+
+	this.effects.initialize(function() { return new GameObject(); }, 128);
 	this.enemies.initialize(function() { return new GameObject(); }, 32);
-	this.playerShots.initialize(function() { return new GameObject(); }, 1024);
-	this.enemyShots.initialize(function() { return new GameObject(); }, 2048);
+	this.playerShots.initialize(function() { return new GameObject(); }, 1024, GRID_SETTINGS);
+	this.enemyShots.initialize(function() { return new GameObject(); }, 2048, GRID_SETTINGS);
 
 	//use a custom draw function for these managers
 	this.playerShots.drawFunc = ObjectManager.drawActiveObjects;
@@ -77,18 +89,21 @@ GameManager.SORT_NEARESTFIRSTSWAP = 2; //find only the nearest object and place 
 
 //clears all objects from the gamemanager by deactivating them
 GameManager.prototype.deactivateAll = function() {
+	this.effects.deactivateAll();
 	this.playerShots.deactivateAll();
 	this.enemyShots.deactivateAll();
 	this.enemies.deactivateAll();
 }
 
 GameManager.prototype.update = function() {
+	this.effects.update();
 	this.playerShots.update();
 	this.enemyShots.update();
 	this.enemies.update();
 }
 
 GameManager.prototype.addDrawCall = function() {
+	this.effects.addDrawCall();
 	this.playerShots.addDrawCall();
 	this.enemyShots.addDrawCall();
 	this.enemies.addDrawCall();

@@ -110,7 +110,7 @@ function Player(id, name, startX, startY, keys) {
 
 	//collision
 	this.bounds = this.gameObject.bounds;
-	this.bounds.setAABB(this.pos.x, this.pos.y - 4, 8, 8);
+	this.bounds.setAABB(this.pos.x, this.pos.y - 2, 4, 4);
 	
 	//options
 	this.options = [];
@@ -131,6 +131,7 @@ Player.prototype.initializeGameObject = function() {
 	this.gameObject.updateFunc = function() {};
 
 	this.gameObject.collisionFunc = function(that) {
+		g_SOUNDMANAGER.playSound("PLAYER_HIT");
 	}
 
 	this.gameObject.activate();

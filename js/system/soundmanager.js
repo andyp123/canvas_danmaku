@@ -46,6 +46,7 @@ AudioChannel.prototype.stop = function () {
 function SoundManager() {
 	this.channels = []; //array of audio elements that represent the channels of an audio system
 	this.music = new AudioChannel(); //special element just for playing looping music
+	this.sound_enabled = true;
  
 	this.sounds = {}; //hash of audio elements to store audio that has been loaded
 	var i = SoundManager.MAX_CHANNELS;
@@ -59,6 +60,8 @@ SoundManager.MAX_CHANNELS = 16;
 //SoundManager.AUDIO_FORMAT = "audio/ogg";
 
 SoundManager.prototype.playMusic = function (name) {
+	if (!this.sound_enabled) return;
+
 	var sound = this.sounds[name];
 	if (sound !== undefined) {
 		this.music.loop(sound);
@@ -67,7 +70,7 @@ SoundManager.prototype.playMusic = function (name) {
 	}
 }
 
-SoundManager.prototype.stopMusic = function (name) {
+SoundManager.prototype.stopMusic = function () {
 	this.music.stop();
 }
 
@@ -88,6 +91,8 @@ SoundManager.prototype.getFreeChannel = function () {
 }
 
 SoundManager.prototype.playSound = function (name, channel) {
+	if (!this.sound_enabled) return;
+
 	var sound = this.sounds[name];
 	if (sound !== undefined) {
 		if (channel === undefined) {
@@ -130,4 +135,22 @@ SoundManager.prototype.loadSounds = function (paths, prefix) {
 		//now queue the asset
 		this.loadSound(name, path);
 	}
+}
+
+SoundManager.prototype.disableSound = function() {
+	this.stopMusic();
+	var i = SoundManager.MAX_CHANNELS;
+	while (i--) {
+		this.channels[i].stop();
+	}
+	this.sound_enabled = false;
+}
+
+SoundManager.prototype.enableSound = function() {
+	this.sound_enabled = true;
+}
+
+SoundManager.prototype.toggleSound = function() {
+	if (this.sound_enabled) this.disableSound();
+	else this.enableSound();
 }
