@@ -168,9 +168,14 @@ Player.prototype.update = function() {
 		}
 
 		//shooting
-		if (g_KEYSTATES.isPressed(this.keys.SHOT1) && g_GAMETIME_MS >= this.nextShotTime) {
-			this.fire();
-			this.nextShotTime = g_GAMETIME_MS + this.shotDelay;
+		if (g_GAMETIME_MS >= this.nextShotTime) {
+			var shot_type = 0;
+			if (g_KEYSTATES.isPressed(this.keys.SHOT1)) shot_type = 1;
+			if (g_KEYSTATES.isPressed(this.keys.SHOT2)) shot_type = 2;
+			if (shot_type > 0) {
+				this.fire(shot_type);
+				this.nextShotTime = g_GAMETIME_MS + this.shotDelay;
+			}
 		}
 	} else {
 
@@ -178,45 +183,48 @@ Player.prototype.update = function() {
 }
 
 
-Player.prototype.fire = function() {
+Player.prototype.fire = function(shot_type) {
+	if (shot_type == 1) {
+		//DODONPACHI style
+		var numShots = 4;
+		var x = Math.sin(0.25 * g_KEYSTATES.duration(this.keys.SHOT1)) * 16;
+		var increment = (x * 2) / numShots;
+		var angle = 270 * Util.DEG_TO_RAD;
 
-	//simple
-/*	var x = Math.sin(0.5 * g_KEYSTATES.duration(this.keys.SHOT1)) * 5;
-	var spreadAngle = 0;
-	var shot = g_GAMEMANAGER.playerShots.getFreeInstance();
-	if (shot) {
-		Shot.instance_VULCAN(shot, this.pos.x, this.pos.y, 270 * Util.DEG_TO_RAD);
-	}
-
-	for(var i = 0; i < this.options.length; ++i) {
-		var shot = g_GAMEMANAGER.playerShots.getFreeInstance();
-		if (shot) {
-			var option = this.options[i];
-			Shot.instance_VULCAN(shot, option.pos.x, option.pos.y, (270 - (spreadAngle * 0.5) + (spreadAngle / (this.options.length - 1) * i)) * Util.DEG_TO_RAD);
+		for (var i = 0; i < numShots; ++i) {
+			var shot = g_GAMEMANAGER.playerShots.getFreeInstance();
+			if (shot) {
+				Shot.instance_VULCAN(shot, this.pos.x - x + i * increment, this.pos.y - 16, angle);
+			}
 		}
-	}*/
+	} else if (shot_type == 2) {
+		//mental
+		var numShots = 60;
+		var spreadAngle = 360;
+		var startAngle = 270 - spreadAngle * 0.5;
+		var intervalAngle = (numShots < 2) ? 0.0 : spreadAngle / (numShots - 1);
 
-	//DODONPACHI style
-	/*var x = Math.sin(0.25 * g_KEYSTATES.duration(this.keys.SHOT1)) * 16;
-	var shot = g_GAMEMANAGER.playerShots.getFreeInstance();
-	if (shot) {
-		Shot.instance_VULCAN(shot, this.pos.x - x, this.pos.y - 16, 270 * Util.DEG_TO_RAD);
-	}
-	shot = g_GAMEMANAGER.playerShots.getFreeInstance();
-	if (shot) {
-		Shot.instance_VULCAN(shot, this.pos.x + x, this.pos.y - 16, 270 * Util.DEG_TO_RAD);
-	}*/
-
-	//mental
-	var numShots = 60;
-	var spreadAngle = 360;
-	var startAngle = 270 - spreadAngle * 0.5;
-	var intervalAngle = (numShots < 2) ? 0.0 : spreadAngle / (numShots - 1);
-
-	for (var i = 0; i < numShots; ++ i) {
+		for (var i = 0; i < numShots; ++ i) {
+			var shot = g_GAMEMANAGER.playerShots.getFreeInstance();
+			if (shot) {
+				Shot.instance_VULCAN(shot, this.pos.x, this.pos.y, (startAngle + i * intervalAngle) * Util.DEG_TO_RAD);
+			}
+		}		
+	} else {
+		//simple
+		var x = Math.sin(0.5 * g_KEYSTATES.duration(this.keys.SHOT1)) * 4;
+		var spreadAngle = 10;
 		var shot = g_GAMEMANAGER.playerShots.getFreeInstance();
 		if (shot) {
-			Shot.instance_VULCAN(shot, this.pos.x, this.pos.y, (startAngle + i * intervalAngle) * Util.DEG_TO_RAD);
+			Shot.instance_VULCAN(shot, this.pos.x + x, this.pos.y, 270 * Util.DEG_TO_RAD);
+		}
+
+		for(var i = 0; i < this.options.length; ++i) {
+			var shot = g_GAMEMANAGER.playerShots.getFreeInstance();
+			if (shot) {
+				var option = this.options[i];
+				Shot.instance_VULCAN(shot, option.pos.x - x, option.pos.y, (270 - (spreadAngle * 0.5) + (spreadAngle / (this.options.length - 1) * i)) * Util.DEG_TO_RAD);
+			}
 		}
 	}
 }
