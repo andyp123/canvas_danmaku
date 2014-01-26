@@ -172,6 +172,9 @@ Player.prototype.update = function() {
 			var shot_type = 0;
 			if (g_KEYSTATES.isPressed(this.keys.SHOT1)) shot_type = 1;
 			if (g_KEYSTATES.isPressed(this.keys.SHOT2)) shot_type = 2;
+
+			if (g_MOUSE.left.isPressed()) shot_type = 2;
+
 			if (shot_type > 0) {
 				this.fire(shot_type);
 				this.nextShotTime = g_GAMETIME_MS + this.shotDelay;
