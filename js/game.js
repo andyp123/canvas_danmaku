@@ -75,8 +75,10 @@ function game_draw(ctx, xofs, yofs) {
 var TEST_nextEnemyTime = 0;
 
 function game_main() {
-	document.getElementById('keystates').innerHTML = g_MOUSE.toString() + "<br>" + g_KEYSTATES.toString() + "<br><b>Camera</b><br>" + g_CAMERA.toString();
-	
+	if (g_DEBUG) {
+		document.getElementById('keystates').innerHTML = g_MOUSE.toString() + "<br>" + g_KEYSTATES.toString() + "<br><b>Camera</b><br>" + g_CAMERA.toString();
+	}
+
 	if (g_KEYSTATES.isPressed(KEYS.SHIFT)) {
 		if (g_KEYSTATES.justPressed(KEYS.S)) g_SOUNDMANAGER.toggleSound();
 		if (g_KEYSTATES.justPressed(KEYS.D)) g_DEBUG = !g_DEBUG;
@@ -113,6 +115,9 @@ function game_init() {
 		g_CAMERA = new Camera(0, 0);
 		g_GAMEMANAGER = new GameManager();
 		g_PLAYER = new Player(0, "Player", g_SCREEN.width * 0.5, g_SCREEN.height * 0.75);
+
+		//init debug buttons
+		document.getElementById('debug').innerHTML = "<button onclick='(function() { g_DEBUG = !g_DEBUG; })()'>TOGGLE DEBUG</button>";
 	}
 }
 
